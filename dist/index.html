@@ -5,198 +5,276 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Savings Account Interest Calculator</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        crossorigin="anonymous">
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            position: relative;
+        .form-control.is-valid,
+        .was-validated .form-control:valid {
+            padding-right: unset;
+            background: unset;
         }
 
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            width: 75%;
-        }
-
-        .bank {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin: 10px;
-            width: 45%;
-            position: relative;
-        }
-
+        .add-range,
+        .remove-range,
         .remove-bank {
-            position: absolute;
-            top: 10px;
-            right: 10px;
+            background: none;
+            cursor: pointer;
         }
 
-        .result {
+        .add-range {
+            color: green;
+        }
+
+        .result-wrapper {
             margin-top: 20px;
             padding: 10px;
             border: 1px solid #000;
         }
 
-        input[type="number"],
-        input[type="text"] {
-            width: 100px;
+        .range-rate {
+            width: 20%
         }
 
-        .range-item {
-            margin-bottom: 5px;
-        }
-
-        .range-item button {
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            padding: 5px;
-            margin-left: 5px;
-        }
-
-        .range-item .add-range {
-            color: green;
-        }
-
-        .range-item .remove-range {
-            color: red;
-        }
-
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .button-group div {
-            display: flex;
-            align-items: center;
-        }
-
-        .button-group button {
-            margin-left: 10px;
-        }
-
-        .bank-container {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            align-items: center;
-        }
-
-        .bank-container button {
-            margin-left: 10px;
-        }
-
-        .top-right-buttons {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-
-        .add-bank-button {
-            margin-top: 10px;
-            display: block;
+        .data-msg {
+            font-size: 12px;
         }
     </style>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8674161164740483"
+        crossorigin="anonymous"></script>
+
 </head>
 
-<body>
-    <h1>Savings Account Interest Calculator</h1>
-    <div class="top-right-buttons">
-        <button onclick="storeData()">Store Data</button>
-        <button onclick="retrieveData()">Retrieve Data</button>
+<body class="container py-4">
+    <h1 class="mb-4">Savings Account Interest Calculator</h1>
+
+
+    <!-- Top buttons -->
+    <div class="d-flex justify-content-end">
+        <button class="btn btn-outline-primary me-2" onclick="storeData()">Store Data*</button>
+        <button class="btn btn-outline-primary" onclick="retrieveData()">Retrieve Data*</button>
     </div>
-    <div class="button-group">
-        <div>
-            <label for="principal">Principal Amount (Rs): </label>
-            <input type="number" id="principal" placeholder="Enter amount">
-            <button onclick="calculateInterest()">Calculate Interest</button>
+    <div class="d-flex fst-italic fw-regular justify-content-end pb-4 data-msg">
+        *Data will be stored locally in browser. If you access this from other device or browser, retrival will not
+        work.
+    </div>
+
+    <!-- Main input -->
+    <div class="row mb-4">
+        <div class="col-md-5 d-flex col-12 justify-content-md-start justify-content-center">
+            <div class="me-2">
+                <label for="principal" class="me-2 text-primary fs-3 fw-bold">Principal Amount</label>
+                <input type="number" id="principal" class="form-control me-2" placeholder="Enter amount">
+            </div>
+            <button class="btn btn-primary" onclick="calculateInterest()">Calculate Interest</button>
         </div>
-        <div>
-            <button onclick="calculateBreakeven()">Calculate Breakeven Principal Amount</button>
+        <div class="col-md-2 d-flex align-items-center justify-content-center btn-outline-primary col-12">
+            OR
+        </div>
+        <div class="col-md-5 d-flex justify-content-md-end justify-content-center col-12">
+            <button class="btn btn-success" onclick="calculateBreakeven()">
+                <div class="fs-4 fw-bold">Calculate Breakeven Principal
+                    Amount</div>
+                <div class="fs-6 fw-light">find out which is bank is best of which principal range</div>
+            </button>
         </div>
     </div>
-    <div class="container" id="bankContainer">
-        <!-- Banks will be added here dynamically -->
+
+    <!-- Bank container -->
+    <div class="row" id="bankContainer">
+        <!-- Banks will be added dynamically -->
     </div>
-    <button class="add-bank-button" onclick="addBank()">Add Bank</button>
-    <div class="result" id="result"></div>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8674161164740483"
-     crossorigin="anonymous"></script>
+
+    <!-- Add bank button -->
+    <div class="text-center">
+        <button class="btn btn-info mt-3" onclick="addBank()">Add Bank</button>
+    </div>
+
+    <!-- Results section -->
+    <div class="mt-4" id="result"></div>
+
+    <!-- JavaScript -->
     <script>
         let bankCount = 0;
 
+        // Add a new bank
         function addBank(bankData = null) {
             bankCount++;
             const bankContainer = document.getElementById('bankContainer');
 
-            const bankDiv = document.createElement('div');
-            bankDiv.className = 'bank';
-            bankDiv.id = `bank${bankCount}`;
-            bankDiv.innerHTML = `
-                <button class="remove-bank" onclick="removeBank(${bankCount})">x</button>
-                <h3><input type="text" id="bank${bankCount}_name" placeholder="Bank ${bankCount} Name"></h3>
-                <div id="bank${bankCount}_ranges"></div>
-                <button onclick="addRange('bank${bankCount}_ranges')" class="add-range">+</button>
-            `;
-            bankContainer.appendChild(bankDiv);
+            const colDiv = document.createElement('div');
+            colDiv.className = 'col-md-6 mb-4 banks';
+            colDiv.id = `bank${bankCount}`;
+
+            const cardDiv = `
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title d-flex mb-4">
+                             <div class="input-group me-2">
+                                <span class="input-group-text" id="bank-name-prefix">Bank</span>
+                                <input type="text" id="bank${bankCount}_name" class="form-control" placeholder="Enter Bank Name"  aria-describedby="bank-name-prefix">
+                             </div>
+                             <button class="remove-bank btn btn-outline-danger btn-sm" onclick="removeBank(${bankCount})"><i class="bi bi-trash"></i></button>
+                        </h5>
+                        <form id="bank${bankCount}_ranges" class="mb-3 needs-validation" novalidate></form>
+                        <button class="btn btn-outline-success btn-sm add-range" onclick="addRange('bank${bankCount}_ranges')">Add Range</button>
+                    </div>
+                </div>`;
+            colDiv.innerHTML = cardDiv;
+            bankContainer.appendChild(colDiv);
 
             if (bankData) {
                 document.getElementById(`bank${bankCount}_name`).value = bankData.name;
-                bankData.ranges.forEach((range) => {
-                    addRange(`bank${bankCount}_ranges`, range);
-                });
+                bankData.ranges.forEach(range => addRange(`bank${bankCount}_ranges`, range));
             } else {
                 addRange(`bank${bankCount}_ranges`);
             }
         }
 
+        // Remove a bank
         function removeBank(bankId) {
             const bankDiv = document.getElementById(`bank${bankId}`);
             bankDiv.remove();
         }
 
-        function addRange(containerId, rangeData = null) {
-            const container = document.getElementById(containerId);
-            const rangeCount = container.children.length + 1;
+        // Add a new range
+        function addRange(formId, rangeData = null) {
+
+            const form = document.getElementById(formId);
+
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+
+            form.classList.add('was-validated')
+            const rangeCount = form.children.length + 1;
 
             let previousEndValue = 0;
-            if (container.lastElementChild) {
-                const previousEndInput = container.lastElementChild.querySelector('.range-end');
+            if (form.lastElementChild) {
+                const previousEndInput = form.lastElementChild.querySelector('.range-end');
                 previousEndValue = parseFloat(previousEndInput.value) || 0;
             }
 
-            const rangeItem = document.createElement('div');
-            rangeItem.classList.add('range-item');
-            rangeItem.innerHTML = `
-                <label>Balance Range ${rangeCount}:</label><br/>
-                <input type="number" class="range-start" placeholder="Start" value="${rangeData ? rangeData.start : previousEndValue}">
-                <input type="number" class="range-end" placeholder="End" value="${rangeData && rangeData.end !== Infinity ? rangeData.end : ''}">
-                <label>Interest Rate: </label>
-                <input type="number" class="range-rate" placeholder="Rate" value="${rangeData ? rangeData.rate : ''}">
-                <button onclick="removeRange(this)" class="remove-range">x</button><br/><br/>
-            `;
-            container.appendChild(rangeItem);
+            const rangeStartValue = rangeData ? rangeData.start : previousEndValue;
 
-            // Update the start value of the new range to the end value of the previous range
-            if (!rangeData) {
 
-                const startInputs = container.querySelectorAll('.range-start');
-                const endInputs = container.querySelectorAll('.range-end');
-                if (startInputs.length > 1 && endInputs.length > 1) {
-                    startInputs[startInputs.length - 1].value = endInputs[startInputs.length - 2].value || 0;
-                }
+            const rangeDiv = document.createElement('div');
+            rangeDiv.className = 'range-item mb-3 d-flex align-items-baseline';
+
+            rangeDiv.innerHTML = `
+                <input type="number" class="form-control me-2 range-start" readonly 
+                    value="${rangeStartValue}">
+                <div class="w-100 me-2">
+                    <input type="number" class="form-control range-end" placeholder="End" 
+                    value="${rangeData && rangeData.end !== Infinity ? rangeData.end : ''}" min="${rangeStartValue + 1}" onkeyup="onEndChange(this)"
+                    aria-describedby="end-range-hint">
+                    <div class="invalid-feedback">
+                        Range end value should be more than start value
+                    </div>
+                    <div class="form-text hint-text-for-end" id="end-range-hint">keep blank if no end limit</div>
+                </div>
+                <div class="input-group me-3">
+                    <input type="number" class="form-control range-rate" required step="any"
+                    value="${rangeData ? rangeData.rate : ''}" aria-describedby="range-percentage">
+                    <span class="input-group-text" id="range-percentage">%</span>
+                    <div class="invalid-feedback">
+                       Put the interest % for this range
+                   </div>
+                </div>
+                <button class="remove-range btn btn-outline-secondary btn-sm" onclick="removeRange(this)"><i class="bi text-danger bi-dash-circle"></i></button>`;
+            form.appendChild(rangeDiv);
+
+            // if (!rangeData) {
+
+            //     const startInputs = container.querySelectorAll('.range-start');
+            //     const endInputs = container.querySelectorAll('.range-end');
+            //     if (startInputs.length > 1 && endInputs.length > 1) {
+            //         startInputs[startInputs.length - 1].value = endInputs[startInputs.length - 2].value || 0;
+            //     }
+            // }
+            updateRangeEndValidations(form);
+            setButtonValidation(form);
+
+        }
+
+
+        function updateRangeEndValidations(rangeParent) {
+            const endInputs = rangeParent.querySelectorAll('.range-end');
+            endInputs.forEach(endInput => {
+                endInput.required = true;
+                endInput.parentElement.querySelector(".hint-text-for-end").style.display = 'none'
+            })
+
+            const lastEndInput = endInputs[endInputs.length - 1];
+            lastEndInput.required = false;
+            lastEndInput.parentElement.querySelector(".hint-text-for-end").style.display = 'unset'
+
+        }
+
+
+        function onEndChange(endInput) {
+            const rangeDiv = endInput.parentElement.parentElement
+            const form = rangeDiv.parentElement;
+
+
+            let nextRange = rangeDiv.nextElementSibling;
+            if (nextRange) {
+                // Adjust the 'start' of the next range
+                const current = parseFloat(endInput.value);
+                const rangeStartValue = isNaN(current) ? 0 : current;
+                nextRange.querySelector('.range-start').value = rangeStartValue;
+                nextRange.querySelector('.range-end').min = rangeStartValue + 1;
             }
+
+
+            setButtonValidation(form);
+
         }
 
+
+        function setButtonValidation(form) {
+            const endInputs = form.querySelectorAll('.range-end');
+            let isAllEndInputsFilled = true;
+
+            endInputs.forEach(endInput => {
+                isAllEndInputsFilled = isAllEndInputsFilled && !!endInput.value;
+            });
+
+            const formParent = form.parentElement;
+            formParent.getElementsByClassName("add-range")[0].disabled = !isAllEndInputsFilled;
+        }
+
+        // Remove a range
         function removeRange(button) {
-            const rangeItem = button.parentElement;
-            rangeItem.remove();
+            const rangeDiv = button.parentElement; // Current range being removed
+            const container = rangeDiv.parentElement; // Parent container of the range
+
+
+            // Get the next sibling range (if any)
+            const nextRange = rangeDiv.nextElementSibling;
+
+            if (nextRange) {
+                // Adjust the 'start' of the next range
+                const removedStart = parseFloat(rangeDiv.querySelector('.range-start').value);
+                const rangeStartValue = isNaN(removedStart) ? 0 : removedStart;
+                nextRange.querySelector('.range-start').value = rangeStartValue;
+                nextRange.querySelector('.range-end').min = rangeStartValue + 1;
+            }
+
+            const rangeParent = rangeDiv.parentElement;
+
+            // Remove the current range
+            rangeDiv.remove();
+            const remainingRangeItems = container.querySelectorAll('.range-item');
+            if (remainingRangeItems.length === 0) {
+                container.parentElement.getElementsByClassName("add-range")[0].disabled = false;
+            }
+            updateRangeEndValidations(rangeParent);
         }
 
+        // Calculate Interest
         function calculateInterest() {
             const principal = parseFloat(document.getElementById('principal').value);
             if (isNaN(principal) || principal <= 0) {
@@ -205,10 +283,15 @@
             }
 
             const bankContainer = document.getElementById('bankContainer');
-            const banks = bankContainer.getElementsByClassName('bank');
+            const banks = bankContainer.getElementsByClassName('banks');
             let maxInterest = -1;
             let bestBank = '';
             let bankResults = [];
+
+            if (!banks || banks.length < 1) {
+                alert("Configure bank details to proceed");
+                return;
+            }
 
             Array.from(banks).forEach(bankDiv => {
                 const name = bankDiv.querySelector('input[type="text"]').value || bankDiv.id;
@@ -220,13 +303,16 @@
                     const end = item.querySelector('.range-end').value.trim() !== '' ? parseFloat(item.querySelector('.range-end').value) : Infinity;
                     const rate = parseFloat(item.querySelector('.range-rate').value);
 
-                    if (!isNaN(rate)) {
-                        ranges.push({ start, end, rate });
-                    }
+                    if (!isNaN(rate)) ranges.push({ start, end, rate });
                 });
 
                 let interest = 0;
                 let remainingPrincipal = principal;
+
+                if (!ranges || ranges.length < 1) {
+                    alert("Configure range in all banks to proceed");
+                    throw new Error("RangeConfigError");
+                }
 
                 ranges.sort((a, b) => a.start - b.start).forEach(range => {
                     if (remainingPrincipal > 0) {
@@ -237,28 +323,32 @@
                 });
 
                 bankResults.push({ name, interest });
-
                 if (interest > maxInterest) {
                     maxInterest = interest;
                     bestBank = name;
                 }
             });
 
-            let resultHtml = `<h3>Best Bank: ${bestBank} with Interest: Rs ${maxInterest.toFixed(2)}</h3>`;
+            let resultHtml = `<div class="result-wrapper"> <h3>Best Bank: ${bestBank} with Interest: Rs ${maxInterest.toFixed(2)}</h3>`;
             resultHtml += `<ul>`;
             bankResults.forEach(result => {
                 resultHtml += `<li>${result.name}: Rs ${result.interest.toFixed(2)}</li>`;
             });
-            resultHtml += `</ul>`;
+            resultHtml += `</ul></div>`;
 
             document.getElementById('result').innerHTML = resultHtml;
         }
 
+        // Calculate Breakeven
         function calculateBreakeven() {
             const banksData = [];
             const bankContainer = document.getElementById('bankContainer');
-            const banks = bankContainer.getElementsByClassName('bank');
+            const banks = bankContainer.getElementsByClassName('banks');
 
+            if (!banks || banks.length < 1) {
+                alert("Configure bank details to proceed");
+                return;
+            }
             Array.from(banks).forEach(bankDiv => {
                 const name = bankDiv.querySelector('input[type="text"]').value || bankDiv.id;
                 const ranges = [];
@@ -274,10 +364,15 @@
                     }
                 });
 
+                if (!ranges || ranges.length < 1) {
+                    alert("Configure range in all banks to proceed");
+                    throw new Error("RangeConfigError");
+                }
+
                 banksData.push({ name, ranges });
             });
 
-            let resultHtml = '<h3>Breakeven Principal Ranges</h3><ul>';
+            let resultHtml = '<div class="result-wrapper"><h3>Breakeven Principal Ranges</h3><ul>';
             const step = 500; // Step size for principal ranges
             const maxPrincipal = 10000000; // Maximum principal to consider
             let previousBestBank = '';
@@ -322,28 +417,28 @@
                 resultHtml += `<li>Range: Rs ${rangeStart.toFixed(2)} - Rs ${maxPrincipal.toFixed(2)} - Best Bank: ${previousBestBank}</li>`;
             }
 
-            resultHtml += '</ul>';
+            resultHtml += '</ul></div>';
             document.getElementById('result').innerHTML = resultHtml;
         }
 
+        // Store data
         function storeData() {
             const banksData = [];
             const bankContainer = document.getElementById('bankContainer');
-            const banks = bankContainer.getElementsByClassName('bank');
+            const banks = bankContainer.getElementsByClassName('banks');
+
 
             Array.from(banks).forEach(bankDiv => {
                 const name = bankDiv.querySelector('input[type="text"]').value || bankDiv.id;
                 const ranges = [];
-
                 const rangeItems = bankDiv.querySelectorAll('.range-item');
+
                 rangeItems.forEach(item => {
                     const start = parseFloat(item.querySelector('.range-start').value) || 0;
                     const end = item.querySelector('.range-end').value.trim() !== '' ? parseFloat(item.querySelector('.range-end').value) : Infinity;
                     const rate = parseFloat(item.querySelector('.range-rate').value);
 
-                    if (!isNaN(rate)) {
-                        ranges.push({ start, end, rate });
-                    }
+                    if (!isNaN(rate)) ranges.push({ start, end, rate });
                 });
 
                 banksData.push({ name, ranges });
@@ -353,6 +448,7 @@
             alert('Data stored successfully.');
         }
 
+        // Retrieve data
         function retrieveData() {
             const storedData = localStorage.getItem('banksData');
             if (storedData) {
@@ -364,6 +460,9 @@
             }
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
