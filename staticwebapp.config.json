@@ -1,12 +1,14 @@
 {
   "routes": [
     {
-      "route": "/profile",
-      "methods": [
-        "get"
-      ],
-      "rewrite": "/",
-      "statusCode": 200
+      "responseOverrides": {
+        "400": {
+          "rewrite": "/index.html"
+        },
+        "404": {
+          "rewrite": "/index.html"
+        }
+      }
     }
   ]
 }
