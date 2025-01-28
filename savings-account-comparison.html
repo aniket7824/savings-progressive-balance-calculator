@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,10 +11,13 @@
             margin: 20px;
             position: relative;
         }
+
         .container {
             display: flex;
             flex-wrap: wrap;
+            width: 75%;
         }
+
         .bank {
             border: 1px solid #ccc;
             padding: 10px;
@@ -21,22 +25,28 @@
             width: 45%;
             position: relative;
         }
+
         .remove-bank {
             position: absolute;
             top: 10px;
             right: 10px;
         }
+
         .result {
             margin-top: 20px;
             padding: 10px;
             border: 1px solid #000;
         }
-        input[type="number"], input[type="text"] {
+
+        input[type="number"],
+        input[type="text"] {
             width: 100px;
         }
+
         .range-item {
             margin-bottom: 5px;
         }
+
         .range-item button {
             font-size: 16px;
             border: none;
@@ -44,45 +54,55 @@
             padding: 5px;
             margin-left: 5px;
         }
+
         .range-item .add-range {
             color: green;
         }
+
         .range-item .remove-range {
             color: red;
         }
+
         .button-group {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
         }
+
         .button-group div {
             display: flex;
             align-items: center;
         }
+
         .button-group button {
             margin-left: 10px;
         }
+
         .bank-container {
             display: flex;
             justify-content: space-between;
             margin-bottom: 20px;
             align-items: center;
         }
+
         .bank-container button {
             margin-left: 10px;
         }
+
         .top-right-buttons {
             position: absolute;
             top: 20px;
             right: 20px;
         }
+
         .add-bank-button {
             margin-top: 10px;
             display: block;
         }
     </style>
 </head>
+
 <body>
     <h1>Savings Account Interest Calculator</h1>
     <div class="top-right-buttons">
@@ -151,21 +171,21 @@
             const rangeItem = document.createElement('div');
             rangeItem.classList.add('range-item');
             rangeItem.innerHTML = `
-                <label>Balance Range ${rangeCount}:</label>
+                <label>Balance Range ${rangeCount}:</label><br/>
                 <input type="number" class="range-start" placeholder="Start" value="${rangeData ? rangeData.start : previousEndValue}">
                 <input type="number" class="range-end" placeholder="End" value="${rangeData && rangeData.end !== Infinity ? rangeData.end : ''}">
                 <label>Interest Rate: </label>
                 <input type="number" class="range-rate" placeholder="Rate" value="${rangeData ? rangeData.rate : ''}">
-                <button onclick="removeRange(this)" class="remove-range">x</button>
+                <button onclick="removeRange(this)" class="remove-range">x</button><br/><br/>
             `;
             container.appendChild(rangeItem);
 
             // Update the start value of the new range to the end value of the previous range
-            if(!rangeData){
+            if (!rangeData) {
 
                 const startInputs = container.querySelectorAll('.range-start');
                 const endInputs = container.querySelectorAll('.range-end');
-                if (startInputs.length > 1 && endInputs.length>1) {
+                if (startInputs.length > 1 && endInputs.length > 1) {
                     startInputs[startInputs.length - 1].value = endInputs[startInputs.length - 2].value || 0;
                 }
             }
@@ -257,7 +277,7 @@
             });
 
             let resultHtml = '<h3>Breakeven Principal Ranges</h3><ul>';
-            const step = 1000; // Step size for principal ranges
+            const step = 500; // Step size for principal ranges
             const maxPrincipal = 10000000; // Maximum principal to consider
             let previousBestBank = '';
             let rangeStart = 0;
@@ -268,7 +288,7 @@
 
                 banksData.forEach(bank => {
                     let interest = 0;
-                    let remainingPrincipal = principal;
+                    let remainingPrincipal = principal || 1;
 
                     bank.ranges.sort((a, b) => a.start - b.start).forEach(range => {
                         if (remainingPrincipal > 0) {
@@ -281,6 +301,9 @@
                     if (interest > maxInterest) {
                         maxInterest = interest;
                         bestBank = bank.name;
+                    } else if (interest === maxInterest) {
+                        bestBank += ", " + bank.name;
+
                     }
                 });
 
@@ -341,4 +364,5 @@
         }
     </script>
 </body>
+
 </html>
