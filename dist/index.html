@@ -27,6 +27,13 @@
             cursor: pointer;
         }
 
+        .remove-bank {
+
+            right: -1rem;
+            top: calc(-1* var(--bs-card-spacer-y));
+            background-color: white;
+        }
+
         .add-range {
             color: green;
         }
@@ -51,7 +58,19 @@
             background-size: cover;
             background-attachment: fixed;
             background-position: center;
-            ;
+        }
+
+        .selector-frequency {
+            width: 40%;
+        }
+
+        .bank-name {
+            width: 60%;
+        }
+
+
+        .principal-label {
+            line-height: 1;
         }
     </style>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8674161164740483"
@@ -82,10 +101,10 @@
 
     <!-- Main input -->
     <div class="row mb-4">
-        <div class="col-md-5 d-flex col-12 justify-content-md-start justify-content-center">
+        <div class="col-lg-5 d-flex col-12 justify-content-lg-start justify-content-center">
             <div>
 
-                <label for="principal" class="me-2 text-primary fs-3 fw-bold">Principal Amount</label>
+                <label for="principal" class="me-2 text-primary fs-3 fw-bold principal-label">Principal Amount</label>
                 <div class="input-group me-2">
                     <span class="input-group-text" id="principal-prefix"> <i
                             class="bi bi-cash-stack  text-primary fs-3 "></i></span>
@@ -96,10 +115,10 @@
             </div>
             <button class="btn btn-primary fw-bold fs-4" onclick="calculateInterest()">Calculate Interest</button>
         </div>
-        <div class="col-md-2 d-flex align-items-center justify-content-center btn-outline-primary col-12">
+        <div class="col-lg-2 d-flex align-items-center justify-content-center btn-outline-primary col-12">
             OR
         </div>
-        <div class="col-md-5 d-flex justify-content-md-end justify-content-center col-12">
+        <div class="col-lg-5 d-flex justify-content-lg-end justify-content-center col-12">
             <button class="btn btn-success" onclick="calculateBreakeven()">
                 <div class="fs-4 fw-bold">Calculate Breakeven Principal
                     Amount</div>
@@ -108,7 +127,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-9 col-12">
+        <div class="col-lg-9 col-12">
 
 
             <!-- Bank container -->
@@ -117,14 +136,14 @@
             </div>
 
             <!-- Add bank button -->
-            <div class="text-md-start text-center">
+            <div class="text-lg-start text-center">
                 <button class="btn btn-info mt-3" onclick="addBank()">Add Another Bank</button>
             </div>
 
             <!-- Results section -->
             <div class="mt-4" id="result"></div>
         </div>
-        <div class="col-md-3 d-none d-md-block">
+        <div class="col-lg-3 d-none d-lg-block">
             <script async
                 src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8674161164740483"
                 crossorigin="anonymous"></script>
@@ -160,18 +179,28 @@
             const bankContainer = document.getElementById('bankContainer');
 
             const colDiv = document.createElement('div');
-            colDiv.className = 'col-md-6 mb-4 banks';
+            colDiv.className = 'col-lg-6 mb-4 banks';
             colDiv.id = `bank${bankCount}`;
 
             const cardDiv = `
                 <div class="card h-100">
                     <div class="card-body">
                         <h5 class="card-title d-flex mb-4">
-                             <div class="input-group me-2">
+                             <div class="input-group me-2 bank-name">
                                 <span class="input-group-text" id="bank-name-prefix"><i class="bi bi-bank2"></i></span>
                                 <input type="text" id="bank${bankCount}_name" class="form-control" placeholder="Enter Bank Name"  aria-describedby="bank-name-prefix">
                              </div>
-                             <button class="remove-bank btn btn-outline-danger btn-sm" onclick="removeBank(${bankCount})"><i class="bi bi-trash"></i></button>
+                             <div class="form-floating selector-frequency me-2">
+                                <select class="form-select interest-frequency" id="bank${bankCount}_interestFrequency" aria-label="Interest payout frequency">
+                                    <option value="annually">Yearly</option>
+                                    <option value="half">Half Yearly</option>
+                                    <option value="quarterly">Quarterly</option>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="daily">Daily</option>
+                                </select>
+                                <label class="fs-6" for="bank${bankCount}_interestFrequency">Interest paid</label>
+                            </div>
+                             <button class="position-absolute rounded-5 remove-bank btn btn-outline-danger btn-sm" onclick="removeBank(${bankCount})"><i class="bi bi-trash"></i></button>
                         </h5>
                         <form id="bank${bankCount}_ranges" class="mb-3 needs-validation" novalidate></form>
                         <div class="d-flex">
@@ -185,6 +214,7 @@
 
             if (bankData) {
                 document.getElementById(`bank${bankCount}_name`).value = bankData.name;
+                document.getElementById(`bank${bankCount}_interestFrequency`).value = bankData.interestFrequency || "annually";
                 bankData.ranges.forEach(range => addRange(`bank${bankCount}_ranges`, range));
             } else {
                 addRange(`bank${bankCount}_ranges`);
@@ -373,10 +403,34 @@
                     throw new Error("RangeConfigError");
                 }
 
+
+
+
+                const frequencySelector = bankDiv.querySelector('.interest-frequency');
+                let n;
+
+                // Determine compounding periods per year
+                switch (frequencySelector.value.toLowerCase()) {
+                    case 'monthly': n = 12; break;
+                    case 'daily': n = 365; break;
+                    case 'half': n = 2; break;
+                    case 'quarterly': n = 4; break;
+                    case 'annually': n = 1; break; // Simple annual compounding
+                    default: throw new Error("Invalid compounding frequency. Use 'monthly', 'quarterly', or 'annually'.");
+                }
+
+                console.log(n);
                 ranges.sort((a, b) => a.start - b.start).forEach(range => {
                     if (remainingPrincipal > 0) {
+
+                        // Compound interest formula: A = P (1 + r/n)^(nt)
+                        let r = range.rate / 100;   // Convert percentage to decimal
+                        let t = 1;            // Assuming 1 year for simplicity
+                        let compoundFactor = Math.pow(1 + r / n, n * t);
+
+                        // Compute the compounded amount for this range
                         const balance = Math.min(remainingPrincipal, range.end - range.start);
-                        interest += (balance * range.rate) / 100;
+                        interest += (balance * compoundFactor) - balance;
                         remainingPrincipal -= balance;
                     }
                 });
@@ -489,6 +543,7 @@
 
             Array.from(banks).forEach(bankDiv => {
                 const name = bankDiv.querySelector('input[type="text"]').value || bankDiv.id;
+                const interestFrequency = bankDiv.querySelector('select').value || bankDiv.id;
                 const ranges = [];
                 const rangeItems = bankDiv.querySelectorAll('.range-item');
 
@@ -500,7 +555,7 @@
                     if (!isNaN(rate)) ranges.push({ start, end, rate });
                 });
 
-                banksData.push({ name, ranges });
+                banksData.push({ name, ranges, interestFrequency });
             });
 
             localStorage.setItem('banksData', JSON.stringify(banksData));
