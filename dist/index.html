@@ -4,7 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Savings Account Interest Calculator</title>
+    <title>Savings Account Progressive Interest Calculator</title>
+    <meta name="description"
+        content="Various banks provides interest rate, based on progressive balances. Define the interest rates for various savings account balance ranges and find the best bank for you. Also, find all the balance ranges best for each back.">
+    <meta name="keywords"
+        content="savings, progressive interest, interest, bank, progressive interest calculator, best bank, best savings interest">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         crossorigin="anonymous">
@@ -37,7 +41,7 @@
             width: 20%
         }
 
-        .data-msg {
+        .help-msg {
             font-size: 12px;
         }
 
@@ -63,7 +67,7 @@
 </head>
 
 <body class="container py-4">
-    <h1 class="mb-4">Savings Account Interest Calculator</h1>
+    <h1 class="mb-4">Savings Account Progressive Interest Calculator</h1>
 
 
     <!-- Top buttons -->
@@ -71,7 +75,7 @@
         <button class="btn btn-outline-primary me-2" onclick="storeData()">Store Data*</button>
         <button class="btn btn-outline-primary" onclick="retrieveData()">Retrieve Data*</button>
     </div>
-    <div class="d-flex fst-italic fw-regular justify-content-end pb-4 data-msg">
+    <div class="text-end d-flex fst-italic fw-regular justify-content-end pb-4 help-msg">
         *Data will be stored locally in browser. If you access this from other device or browser, retrival will not
         work.
     </div>
@@ -79,11 +83,18 @@
     <!-- Main input -->
     <div class="row mb-4">
         <div class="col-md-5 d-flex col-12 justify-content-md-start justify-content-center">
-            <div class="me-2">
+            <div>
+
                 <label for="principal" class="me-2 text-primary fs-3 fw-bold">Principal Amount</label>
-                <input type="number" id="principal" class="form-control me-2" placeholder="Enter amount">
+                <div class="input-group me-2">
+                    <span class="input-group-text" id="principal-prefix"> <i
+                            class="bi bi-cash-stack  text-primary fs-3 "></i></span>
+                    <input type="number" id="principal" class="form-control me-2" placeholder="Enter amount"
+                        aria-describedby="principal-prefix">
+
+                </div>
             </div>
-            <button class="btn btn-primary" onclick="calculateInterest()">Calculate Interest</button>
+            <button class="btn btn-primary fw-bold fs-4" onclick="calculateInterest()">Calculate Interest</button>
         </div>
         <div class="col-md-2 d-flex align-items-center justify-content-center btn-outline-primary col-12">
             OR
@@ -106,8 +117,8 @@
             </div>
 
             <!-- Add bank button -->
-            <div class="text-center">
-                <button class="btn btn-info mt-3" onclick="addBank()">Add Bank</button>
+            <div class="text-md-start text-center">
+                <button class="btn btn-info mt-3" onclick="addBank()">Add Another Bank</button>
             </div>
 
             <!-- Results section -->
@@ -157,13 +168,16 @@
                     <div class="card-body">
                         <h5 class="card-title d-flex mb-4">
                              <div class="input-group me-2">
-                                <span class="input-group-text" id="bank-name-prefix">Bank</span>
+                                <span class="input-group-text" id="bank-name-prefix"><i class="bi bi-bank2"></i></span>
                                 <input type="text" id="bank${bankCount}_name" class="form-control" placeholder="Enter Bank Name"  aria-describedby="bank-name-prefix">
                              </div>
                              <button class="remove-bank btn btn-outline-danger btn-sm" onclick="removeBank(${bankCount})"><i class="bi bi-trash"></i></button>
                         </h5>
                         <form id="bank${bankCount}_ranges" class="mb-3 needs-validation" novalidate></form>
-                        <button class="btn btn-outline-success btn-sm add-range" onclick="addRange('bank${bankCount}_ranges')">Add Range</button>
+                        <div class="d-flex">
+                            <button class="btn btn-outline-success btn-sm add-range me-3 text-nowrap justify-content-end" onclick="addRange('bank${bankCount}_ranges')">Add Range</button>
+                            <div class="text-body-tertiary fst-italic help-msg text-end">Add the ranges to calculate progressive interest. Mention interest rates for different principal ranges.</div>
+                        </div>
                     </div>
                 </div>`;
             colDiv.innerHTML = cardDiv;
@@ -225,7 +239,7 @@
                     value="${rangeData ? rangeData.rate : ''}" aria-describedby="range-percentage">
                     <span class="input-group-text" id="range-percentage">%</span>
                     <div class="invalid-feedback">
-                       Put the interest % for this range
+                       interest % for this range
                    </div>
                 </div>
                 <button class="remove-range btn btn-outline-secondary btn-sm" onclick="removeRange(this)"><i class="bi text-danger bi-dash-circle"></i></button>`;
@@ -504,6 +518,9 @@
                 alert('No stored data found.');
             }
         }
+
+        //init methods
+        addBank();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
         integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
