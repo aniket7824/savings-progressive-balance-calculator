@@ -43,6 +43,11 @@
 
         body {
             background-image: url(./bg.svg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            ;
         }
     </style>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8674161164740483"
@@ -91,20 +96,49 @@
             </button>
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-9 col-12">
 
-    <!-- Bank container -->
-    <div class="row" id="bankContainer">
-        <!-- Banks will be added dynamically -->
+
+            <!-- Bank container -->
+            <div class="row" id="bankContainer">
+                <!-- Banks will be added dynamically -->
+            </div>
+
+            <!-- Add bank button -->
+            <div class="text-center">
+                <button class="btn btn-info mt-3" onclick="addBank()">Add Bank</button>
+            </div>
+
+            <!-- Results section -->
+            <div class="mt-4" id="result"></div>
+        </div>
+        <div class="col-md-3 d-none d-md-block">
+            <script async
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8674161164740483"
+                crossorigin="anonymous"></script>
+            <!-- LeftAreaAd -->
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8674161164740483"
+                data-ad-slot="6082819931" data-ad-format="auto" data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
     </div>
 
-    <!-- Add bank button -->
-    <div class="text-center">
-        <button class="btn btn-info mt-3" onclick="addBank()">Add Bank</button>
+    <div class="row pt-2">
+        <div class="col-12">
+            <script async
+                src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8674161164740483"
+                crossorigin="anonymous"></script>
+            <!-- below-ad -->
+            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-8674161164740483"
+                data-ad-slot="4485569751" data-ad-format="auto" data-full-width-responsive="true"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
     </div>
-
-    <!-- Results section -->
-    <div class="mt-4" id="result"></div>
-
     <!-- JavaScript -->
     <script>
         let bankCount = 0;
